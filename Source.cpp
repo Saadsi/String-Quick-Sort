@@ -2,239 +2,255 @@
 #include <Windows.h>
 using namespace std;
 
+// Class to handle string operations
 class MyString
 {
 public:
-	int length = 0;
-	char* str;
-	int count = 0;
-	//конструктор без параметров
-	MyString()
-	{
-		str = nullptr;
-		int length = 0;
-	}
+    int length = 0;   // Length of the string
+    char* str;        // Pointer to dynamically allocated array holding the string
+    int count = 0;
 
-	//конструктор с параметрами, при создании объекта класса необходимо перелать строку которую он будет хранить
-	MyString(const char* str)
-	{
-		int length = strlen(str);// функция strlen получает количество символов в строке которую мы передаём в объект
+    // Default constructor
+    MyString()
+    {
+        str = nullptr;
+        length = 0;
+    }
 
-		// выделяем память для динамического массива где будет храниться наша строка
-		// +1 символ так как нужно место в массиве под терминирующий 0
-		this->str = new char[length + 1];
+    // Parameterized constructor, initializes the object with the given string
+    MyString(const char* str)
+    {
+        int length = strlen(str); // Get the number of characters in the string
 
-		// копируем символы строки в массив нашего класса
-		for (int i = 0; i < length; i++)
-		{
-			this->str[i] = str[i];
-		}
+        // Allocate memory for the dynamic array to store the string (+1 for null-terminator)
+        this->str = new char[length + 1];
 
-		//закрываем строку терминирующим нулём
-		this->str[length] = '\0';
+        // Copy the characters of the string into the class array
+        for (int i = 0; i < length; i++)
+        {
+            this->str[i] = str[i];
+        }
 
-	}
-	// деструктор, отвечает за освобождение ресурвов занятых объектом, вызывается при уничтожении объекта класса
-	~MyString()
-	{
-		delete[] this->str;
-	}
+        // Null-terminate the string
+        this->str[length] = '\0';
+    }
 
-	// конструктор копировании, необходим для создании точной копи объекта класса но в другой области памяти
-	MyString(const MyString& other)
-	{
-		int length = strlen(other.str);
-		this->str = new char[length + 1];
+    // Destructor, responsible for releasing the resources occupied by the object
+    ~MyString()
+    {
+        delete[] this->str;
+    }
 
-		for (int i = 0; i < length; i++)
-		{
-			this->str[i] = other.str[i];
-		}
+    // Copy constructor, creates an exact copy of the object in a different memory area
+    MyString(const MyString& other)
+    {
+        int length = strlen(other.str);
+        this->str = new char[length + 1];
 
-		this->str[length] = '\0';
-	}
+        for (int i = 0; i < length; i++)
+        {
+            this->str[i] = other.str[i];
+        }
 
-	// перегруженый оператор присваивания, вызывается когда необходимо присвоить значение одного объекта другому
-	MyString& operator =(const MyString& other)
-	{
-		// здесь логика похожа на ту которая реализована в конструкторе, за исключением того, что нам нужно позаботиться
-		// об освобождении ресурсов объекта если до копирования в него новой строки он уже содержал код
-		//+ страндартный синтаксис перегрузки оператора =
-		if (this->str != nullptr)
-		{
-			delete[] str;
-		}
+        this->str[length] = '\0';
+    }
 
-		int length = strlen(other.str);
-		this->str = new char[length + 1];
+    // Overloaded assignment operator, called when assigning one object's value to another
+    MyString& operator =(const MyString& other)
+    {
+        // Ensure we don't leak memory if the object already contained data before assignment
+        if (this->str != nullptr)
+        {
+            delete[] str;
+        }
 
-		for (int i = 0; i < length; i++)
-		{
-			this->str[i] = other.str[i];
-		}
+        int length = strlen(other.str);
+        this->str = new char[length + 1];
 
-		this->str[length] = '\0';
+        for (int i = 0; i < length; i++)
+        {
+            this->str[i] = other.str[i];
+        }
 
-		return *this;
+        this->str[length] = '\0';
 
-	}
+        return *this;
+    }
 
-	//перегруженный оператор сложения, в текущей реализации класса String необходим для конкатенации строк
-	MyString operator+(const MyString& other)
-	{
-		//создаём новый пустой объект где будим хранить результат конкатенации строк и который будет результатом работы
-		// перегруженного оператора +
-		MyString newStr;
-		// получаем количество символов в обеих строках для конкатенации
+    // Overloaded addition operator, used for string concatenation
+    MyString operator+(const MyString& other)
+    {
+        // Create a new empty object to store the result of concatenation
+        MyString newStr;
 
-		int thisLength = strlen(this->str);
-		int otherLength = strlen(other.str);
+        // Get the number of characters in both strings for concatenation
+        int thisLength = strlen(this->str);
+        int otherLength = strlen(other.str);
 
-		newStr.length = thisLength + otherLength;
+        newStr.length = thisLength + otherLength;
 
-		// выделяем место в динамической памяти под новую строку
-		newStr.str = new char[thisLength + otherLength + 1];
+        // Allocate memory for the new string (+1 for null-terminator)
+        newStr.str = new char[thisLength + otherLength + 1];
 
-		//копируем данные из 2х конкатенируемых строк в новую строку
-		int i = 0;
-		for (; i < thisLength; i++)
-		{
-			newStr.str[i] = this->str[i];
-		}
+        // Copy data from both strings into the new string
+        int i = 0;
+        for (; i < thisLength; i++)
+        {
+            newStr.str[i] = this->str[i];
+        }
 
-		for (int j = 0; j < otherLength; j++, i++)
-		{
-			newStr.str[i] = other.str[j];
-		}
+        for (int j = 0; j < otherLength; j++, i++)
+        {
+            newStr.str[i] = other.str[j];
+        }
 
-		newStr.str[thisLength + otherLength] = '\0';
+        // Null-terminate the new string
+        newStr.str[thisLength + otherLength] = '\0';
 
-		// возвращаем результат конкатенации
-		return newStr;
-	}
+        // Return the concatenated result
+        return newStr;
+    }
 
-	void Print()
-	{
-		cout << str;
-	}
+    // Print the string
+    void Print()
+    {
+        cout << str;
+    }
 
-	int Length()
-	{
-		length = strlen(str);
-		return length;
-	}
+    // Get the length of the string
+    int Length()
+    {
+        length = strlen(str);
+        return length;
+    }
 
-	bool operator ==(const MyString& other)
-	{
-		if (this->length != other.length)
-		{
-			return false;
-		}
+    // Overloaded equality operator, checks if two strings are equal
+    bool operator ==(const MyString& other)
+    {
+        if (this->length != other.length)
+        {
+            return false;
+        }
 
-		for (int i = 0; i < this->length; i++)
-		{
-			if (this->str[i] != other.str[i])
-			{
-				return false;
-			}
-		}
-		return true;
-	}
+        for (int i = 0; i < this->length; i++)
+        {
+            if (this->str[i] != other.str[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	bool operator !=(const MyString& other)
-	{
-		return !(this->operator==(other));
-	}
+    // Overloaded inequality operator, checks if two strings are not equal
+    bool operator !=(const MyString& other)
+    {
+        return !(this->operator==(other));
+    }
 
-	char& operator [](int index)
-	{
-		return this->str[index];
-	}
+    // Overloaded subscript operator, allows access to character at specified index
+    char& operator [](int index)
+    {
+        return this->str[index];
+    }
 
-	MyString CreateWord()
-	{
-		MyString usr;
-		usr.str = new char[32];
-		cin >> usr.str;
-		return usr;
-	}
-	void find_symbol(char inp)
-	{
-		for (int i = 0; i < strlen(str); i++)
-		{
-			if (inp == str[i])
-			{
-				cout << "Символ " << inp << " имеет индекс " << i;
-				cout << '\n';
-			}
-		}
-	}
+    // Create a new string by reading input from the user
+    MyString CreateWord()
+    {
+        MyString usr;
+        usr.str = new char[32];
+        cin >> usr.str;
+        return usr;
+    }
+
+    // Find a symbol in the string and print its index
+    void find_symbol(char inp)
+    {
+        for (int i = 0; i < strlen(str); i++)
+        {
+            if (inp == str[i])
+            {
+                cout << "Character " << inp << " has index " << i << '\n';
+            }
+        }
+    }
 };
 
-
+// Convert a character to uppercase
 char to_upper(char ch)
 {
-	if (ch >= 'a' && ch <= 'z') {
-		return ch - 32;
-	}
-	return ch;
+    if (ch >= 'a' && ch <= 'z') {
+        return ch - 32;
+    }
+    return ch;
 }
 
-
+// Recursive quicksort function to sort an array of MyString objects
 void qsortRecursive(MyString* mas, int size) {
-	int i = 0;
-	int j = size - 1;
+    int i = 0;
+    int j = size - 1;
 
-	MyString mid = mas[size / 2];
+    // Select a pivot element
+    MyString mid = mas[size / 2];
 
-	do {
-		while (strcmp(mas[i].str, mid.str) < 0) {
-			i++;
-		}
-		while (strcmp(mas[j].str, mid.str) > 0) {
-			j--;
-		}
+    // Partition the array
+    do {
+        while (strcmp(mas[i].str, mid.str) < 0) {
+            i++;
+        }
+        while (strcmp(mas[j].str, mid.str) > 0) {
+            j--;
+        }
 
-		if (i <= j) {
-			MyString tmp = mas[i];
-			mas[i] = mas[j];
-			mas[j] = tmp;
+        if (i <= j) {
+            MyString tmp = mas[i];
+            mas[i] = mas[j];
+            mas[j] = tmp;
 
-			i++;
-			j--;
-		}
-	} while (i <= j);
+            i++;
+            j--;
+        }
+    } while (i <= j);
 
-
-	if (j > 0) {
-		qsortRecursive(mas, j + 1);
-	}
-	if (i < size) {
-		qsortRecursive(&mas[i], size - i);
-	}
+    // Recursively sort the partitions
+    if (j > 0) {
+        qsortRecursive(mas, j + 1);
+    }
+    if (i < size) {
+        qsortRecursive(&mas[i], size - i);
+    }
 }
-
 
 int main()
 {
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	MyString str1;
-	int length = 0;
-	cout << "Введите кол-во строк: ";
-	cin >> length;
-	MyString* word_array = new MyString[length];
-	for (int i = 0; i < length; i++)
-	{
-		cout << "Строка #" << i + 1 << " ";
-		word_array[i] = str1.CreateWord();
-	}
-	qsortRecursive(word_array, length);
-	cout << "Отсортированный массив: ";
-	for (int i = 0; i < length; i++)
-	{
-		word_array[i].Print();
-		cout << " ";
-	}
-	return 0;
+    // Set console code page to handle Cyrillic characters
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    
+    MyString str1;
+    int length = 0;
+    cout << "Enter the number of strings: ";
+    cin >> length;
+    
+    // Create an array of MyString objects
+    MyString* word_array = new MyString[length];
+    for (int i = 0; i < length; i++)
+    {
+        cout << "String #" << i + 1 << " ";
+        word_array[i] = str1.CreateWord();
+    }
+
+    // Sort the array of strings
+    qsortRecursive(word_array, length);
+    cout << "Sorted array: ";
+    for (int i = 0; i < length; i++)
+    {
+        word_array[i].Print();
+        cout << " ";
+    }
+
+    // Release the memory allocated for the array
+    delete[] word_array;
+
+    return 0;
 }
